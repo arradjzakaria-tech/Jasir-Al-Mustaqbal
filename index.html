@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق جسر المستقبل - Jasir AlMustaqbal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Amiri -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Cairo', 'sans-serif'],
+                        en: ['system-ui', 'sans-serif'],
+                        quran: ['Amiri', 'serif']
+                    },
+                    colors: {
+                        space: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569', purple: '#6d28d9', lightPurple: '#8b5cf6' },
+                        star: '#fbbf24',
+                        success: '#22c55e',
+                        calm: '#38bdf8',
+                        whatsapp: '#25D366',
+                        quran: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 500: '#22c55e', 800: '#166534', gold: '#fbbf24' }
+                    },
+                    boxShadow: {
+                        '3d': '0 4px 0 0 rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.2)',
+                        '3d-wa': '0 4px 0 0 #16a34a, 0 4px 10px rgba(37,211,102,0.3)'
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background: linear-gradient(135deg, #0f172a 0%, #312e81 100%); color: white; min-height: 100vh; display: flex; justify-content: center; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .app-container { width: 100%; max-width: 480px; background: rgba(15, 23, 42, 0.85); box-shadow: 0 0 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; position: relative; overflow-x: hidden; overflow-y: auto; }
+        .stars-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; z-index: -1; opacity: 0.3; }
+        
+        .btn-3d { transition: all 0.15s ease; box-shadow: 0 6px 0 0 rgba(0,0,0,0.4), 0 10px 10px rgba(0,0,0,0.2); transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+        .btn-3d:active { box-shadow: 0 0px 0 0 rgba(0,0,0,0.4), 0 2px 5px rgba(0,0,0,0.2); transform: translateY(4px); }
+        .btn-3d-wa { transition: all 0.15s ease; box-shadow: 0 6px 0 0 #16a34a, 0 10px 10px rgba(37,211,102,0.3); transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.2); background: #25D366; color: white; cursor: pointer; }
+        .btn-3d-wa:active { box-shadow: 0 0px 0 0 #16a34a, 0 2px 5px rgba(37,211,102,0.3); transform: translateY(4px); }
+
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        
+        .form-input { width: 100%; background: #1e293b; border: 2px solid #334155; border-radius: 0.75rem; padding: 0.75rem 1rem; color: white; font-family: 'Cairo', sans-serif; transition: border-color 0.2s; }
+        .form-input:focus { outline: none; border-color: #8b5cf6; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 700; color: #bae6fd; margin-bottom: 0.5rem; }
+
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+        .anim-shake { animation: shake 0.4s; }
+        @keyframes floatUp { 0% { transform: translateY(100vh) scale(0.8); opacity: 0; } 10% { opacity: 1; transform: translateY(80vh) scale(1); } 90% { opacity: 1; transform: translateY(20vh) scale(1.1); } 100% { transform: translateY(-100px) scale(1.2); opacity: 0; } }
+        
+        .calm-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(51, 65, 85, 0.9); backdrop-filter: blur(5px); padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #bae6fd; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 110; border: 2px solid rgba(56, 189, 248, 0.3); text-align: center; }
+        .calm-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .game-card-matched { opacity: 0.5; transform: scale(0.95); pointer-events: none; border-color: #22c55e; background-color: #dcfce7; color: #22c55e;}
+        
+        /* Advanced Games Styles */
+        .memory-card { perspective: 1000px; cursor: pointer; aspect-ratio: 1; width: 100%; position: relative; }
+        .memory-inner { position: absolute; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .memory-card.flip .memory-inner { transform: rotateY(180deg); }
+        .memory-front, .memory-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .memory-front { background: #334155; border: 2px solid #475569; color: #94a3b8; }
+        .memory-back { background: #fff; transform: rotateY(180deg); color: #0f172a; border: 4px solid #8b5cf6; }
+
+        .bubble { position: absolute; border-radius: 50%; cursor: pointer; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.4)); box-shadow: inset 0 0 20px rgba(255,255,255,0.8), 0 4px 15px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.8); backdrop-filter: blur(2px); animation: floatUp linear forwards; touch-action: none; display: flex; justify-content: center; align-items: center; font-size: 2rem; }
+        
+        .falling-item { position: absolute; transition: top 0.1s linear; touch-action: none; }
+        .color-btn { transition: all 0.2s; opacity: 0.5; }
+        .color-btn.active { opacity: 1; transform: scale(1.05); box-shadow: 0 0 25px currentColor; border-color: white;}
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .app-container { width: 100% !important; max-width: none !important; background: white !important; box-shadow: none !important; }
+            .no-print, #bottom-nav, .stars-bg { display: none !important; }
+            .view-section { display: none !important; }
+            #view-report { display: block !important; position: static !important; width: 100% !important; }
+            .glass-card { background: white !important; color: black !important; border: 1px solid #ccc !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="app-container pb-24 h-[100dvh]" id="main-app-container">
+        <div class="stars-bg"></div>
+        <div id="calm-toast" class="calm-toast"><i class="ph-bold ph-info"></i> حاول مرة أخرى يا بطل</div>
+
+        <!-- ================= MODALS ================= -->
+        <div id="custom-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-space-900/80 backdrop-blur-md">
+            <div class="bg-space-800 p-6 rounded-[2rem] border-2 border-space-600 shadow-2xl text-center max-w-xs w-full mx-4">
+                <div id="modal-icon" class="text-5xl mb-3 flex justify-center text-star"></div>
+                <h3 id="modal-title" class="text-2xl font-extrabold mb-2 text-white"></h3>
+                <p id="modal-text" class="text-blue-200 mb-6 font-semibold"></p>
+                <button onclick="closeModal()" class="btn-3d bg-space-lightPurple text-white px-8 py-3 rounded-2xl font-bold w-full text-lg">حسناً</button>
+            </div>
+        </div>
+
+        <div id="parent-lock-modal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-space-900/80 backdrop-blur-md">
+            <div class="bg-space-800 p-6 rounded-[2rem] border-2 border-space-600 shadow-2xl text-center max-w-xs w-full mx-4">
+                <i class="ph-fill ph-lock-key text-5xl text-rose-500 mb-3"></i>
+                <h3 class="text-xl font-extrabold mb-2 text-white">قفل الآباء</h3>
+                <p class="text-sm text-blue-200 mb-4 font-semibold">للوصول للإعدادات، يرجى حل المسألة:</p>
+                <div class="bg-space-900 p-4 rounded-xl text-2xl font-bold text-white mb-4 tracking-widest" id="math-question" dir="ltr"></div>
+                <input type="number" id="math-answer" class="w-full text-center text-2xl font-bold p-3 bg-space-700 text-white border-2 border-space-600 rounded-xl mb-4 focus:border-space-lightPurple focus:outline-none">
+                <div class="flex gap-2">
+                    <button onclick="checkParentLock()" class="btn-3d bg-green-500 flex-1 text-white py-3 rounded-xl font-bold">دخول</button>
+                    <button onclick="closeParentLock()" class="btn-3d bg-space-600 text-white py-3 px-4 rounded-xl font-bold">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MAIN VIEWS ================= -->
+        
+        <!-- Welcome -->
+        <div id="view-welcome" class="view-section flex flex-col items-center justify-center h-full p-6 text-center">
+            <div class="text-7xl text-star mb-6 animate-float"><i class="ph-fill ph-rocket-launch drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"></i></div>
+            <h1 class="text-5xl font-black mb-3 text-white">جسر المستقبل</h1>
+            <p class="text-lg mb-10 text-blue-200 font-semibold">نساعد أبطالنا في اكتشاف قوتهم بكل هدوء ومرح.</p>
+            <button onclick="handleWelcomeClick()" class="btn-3d bg-gradient-to-r from-space-lightPurple to-space-purple text-white font-extrabold text-2xl py-4 px-12 rounded-[2rem]">هيا نبدأ! <i class="ph-bold ph-play ml-2 inline"></i></button>
+        </div>
+
+        <!-- Select Child -->
+        <div id="view-select-child" class="view-section hidden flex-col p-6 h-full justify-center">
+            <h2 class="text-3xl font-black mb-2 text-center text-star">أبطال الفضاء</h2>
+            <div id="children-list" class="grid grid-cols-2 gap-4 mb-6 max-h-[60vh] overflow-y-auto p-2"></div>
+            <button onclick="openAddChild()" class="btn-3d glass-card text-blue-300 font-bold text-lg py-4 rounded-2xl hover:border-space-lightPurple hover:text-white flex justify-center items-center gap-2"><i class="ph-bold ph-plus-circle text-2xl"></i> إضافة بطل جديد</button>
+        </div>
+
+        <!-- Add Child -->
+        <div id="view-profile" class="view-section hidden flex-col p-6 h-full justify-center">
+            <h2 class="text-3xl font-black mb-6 text-center text-star">بطل جديد</h2>
+            <div class="glass-card p-6 rounded-[2rem]">
+                <div class="mb-4"><label class="block text-sm font-bold mb-2 text-blue-300">اسم البطل</label><input type="text" id="input-name" class="w-full bg-space-900 border-2 border-space-600 rounded-xl p-3 text-white outline-none focus:border-star"></div>
+                <div class="mb-4"><label class="block text-sm font-bold mb-2 text-blue-300">العمر</label><input type="number" id="input-age" class="w-full bg-space-900 border-2 border-space-600 rounded-xl p-3 text-white outline-none focus:border-star"></div>
+                <div class="flex gap-2 mt-6">
+                    <button onclick="saveProfile()" class="btn-3d flex-1 bg-star text-space-900 font-bold text-xl py-3 rounded-xl">حفظ</button>
+                    <button id="btn-cancel-profile" onclick="navigate('view-select-child')" class="btn-3d hidden bg-space-700 text-white font-bold text-xl py-3 px-4 rounded-xl">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="view-dashboard" class="view-section hidden flex-col p-6 min-h-full">
+            <div class="flex justify-between items-center glass-card p-4 rounded-[2rem] mb-6 relative">
+                <button onclick="navigate('view-select-child')" class="absolute -top-4 -right-2 bg-space-purple text-white rounded-full p-2 shadow-lg"><i class="ph-bold ph-users text-xl"></i></button>
+                <div class="text-right flex-1 pr-4">
+                    <h2 class="text-xl font-black text-white">أهلاً <span id="display-name" class="text-star"></span>!</h2>
+                    <p class="text-xs text-blue-300 font-bold">أنت بطل رائع ومتميز</p>
+                </div>
+                <div class="bg-space-900 border border-star text-star px-4 py-2 rounded-2xl flex flex-col items-center">
+                    <span class="text-2xl font-black" id="display-points">0</span><span class="text-[10px] font-bold">نجمة</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button onclick="openLearningGrid('letters')" class="btn-3d bg-gradient-to-br from-teal-500 to-emerald-600 rounded-3xl p-4 flex flex-col items-center justify-center text-white h-28">
+                    <span class="text-4xl font-black drop-shadow-md mb-2">أ ب</span>
+                    <span class="font-bold text-sm">الحروف</span>
+                </button>
+                <button onclick="openLearningGrid('numbers')" class="btn-3d bg-gradient-to-br from-orange-400 to-amber-500 rounded-3xl p-4 flex flex-col items-center justify-center text-white h-28">
+                    <span class="text-4xl font-black drop-shadow-md mb-2 font-mono">1 2</span>
+                    <span class="font-bold text-sm">الأرقام</span>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="openLearningGrid('english')" class="btn-3d bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl p-4 flex flex-col items-center justify-center text-white h-28">
+                    <i class="ph-fill ph-text-aa text-4xl mb-2"></i>
+                    <span class="font-bold text-sm">الإنجليزية</span>
+                </button>
+                <button onclick="navigate('view-shapes-hub')" class="btn-3d bg-gradient-to-br from-rose-500 to-pink-600 rounded-3xl p-4 flex flex-col items-center justify-center text-white h-28">
+                    <i class="ph-fill ph-shapes text-4xl mb-2"></i>
+                    <span class="font-bold text-sm">الأشكال</span>
+                </button>
+            </div>
+
+            <button onclick="navigate('view-edu-games')" class="btn-3d bg-gradient-to-br from-space-lightPurple to-space-purple rounded-3xl p-5 flex items-center justify-between text-white w-full mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-3 rounded-full text-2xl"><i class="ph-fill ph-game-controller"></i></div>
+                    <div class="text-right"><span class="font-black text-xl block">ألعاب التركيز</span><span class="text-sm font-bold text-blue-200">العب وتعلم بمتعة</span></div>
+                </div>
+                <i class="ph-bold ph-caret-left text-2xl"></i>
+            </button>
+            
+            <!-- المؤلف والمؤسسة -->
+            <div class="mt-auto text-center border-t border-space-700 pt-6 no-print">
+                <h3 class="text-lg font-black text-white">🏢 مؤسسة جسر المستقبل</h3>
+                <p class="text-xs font-bold text-blue-300 mb-3">🌉 Jasir AlMustaqbal</p>
+                <p class="text-[10px] text-space-400 font-bold mb-1">👨‍💻 إنجاز وتصميم:</p>
+                <p class="text-sm text-star font-black mb-1">الأستاذ عراج زكرياء <span class="text-[10px] text-blue-200">(مستشار التربية)</span></p>
+                <p class="text-xs text-white font-bold mb-1" dir="ltr"><i class="ph-fill ph-phone"></i> 0777 10 95 62</p>
+                <p class="text-[10px] text-space-400 font-bold"><i class="ph-fill ph-map-pin"></i> الجزائر - وهران</p>
+            </div>
+        </div>
+
+        <!-- ================= LEARNING MODULES (ARABIC, ENGLISH & NUMBERS) ================= -->
+        
+        <!-- Grids -->
+        <div id="view-english-grid" class="view-section hidden flex-col p-6 min-h-full pb-24 text-right">
+            <h2 class="text-3xl font-black mb-6 text-indigo-400 text-center drop-shadow-md font-sans">English ABC</h2>
+            <div id="english-container" class="grid grid-cols-4 gap-3" dir="ltr"></div>
+        </div>
+        <div id="view-letters-grid" class="view-section hidden flex-col p-6 min-h-full pb-24 text-right">
+            <h2 class="text-3xl font-black mb-6 text-teal-400 text-center drop-shadow-md">الحروف العربية</h2>
+            <div id="letters-container" class="grid grid-cols-4 gap-3" dir="rtl"></div>
+        </div>
+        <div id="view-numbers-grid" class="view-section hidden flex-col p-6 min-h-full pb-24 text-right">
+            <h2 class="text-3xl font-black mb-6 text-orange-400 text-center drop-shadow-md">الأرقام الممتعة</h2>
+            <div id="numbers-container" class="grid grid-cols-4 gap-3" dir="rtl"></div>
+        </div>
+
+        <!-- Universal Learning Detail View -->
+        <div id="view-learning-detail" class="view-section hidden flex-col p-6 min-h-full text-right">
+            <button onclick="backFromDetail()" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="glass-card p-8 rounded-[2rem] flex flex-col items-center justify-center text-center relative overflow-hidden mb-6 border-2 border-space-600">
+                <button onclick="playCurrentItemTTS()" class="absolute top-4 left-4 bg-star p-3 rounded-full text-space-900 hover:scale-105 transition btn-3d shadow-lg"><i class="ph-fill ph-speaker-high text-3xl"></i></button>
+                <div id="detail-main-char" class="text-[8rem] font-black text-white leading-none mb-2 drop-shadow-md">A</div>
+                <div id="detail-word" class="text-3xl font-bold text-star mb-4 drop-shadow-sm font-sans">Apple</div>
+                <div id="detail-visual" class="text-6xl drop-shadow-xl mb-2 flex flex-wrap justify-center gap-1"></div>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div id="canvas-container" class="flex flex-col items-center bg-space-800 p-4 rounded-3xl border-2 border-space-700 w-full">
+                    <p class="text-blue-200 font-bold mb-3 text-lg"><i class="ph-bold ph-pencil-simple"></i> تتبع بإصبعك</p>
+                    <canvas id="trace-canvas" class="bg-space-900 border-2 border-space-600 rounded-2xl touch-none shadow-inner w-full aspect-square max-w-[280px]"></canvas>
+                    <button onclick="clearTraceCanvas()" class="mt-4 bg-space-700 text-white border border-space-500 px-8 py-3 rounded-xl font-bold text-sm btn-3d w-full max-w-[280px]">مسح اللوحة <i class="ph-bold ph-eraser"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= EDU GAMES MODULE ================= -->
+        <div id="view-edu-games" class="view-section hidden flex-col p-6 min-h-full pb-24 text-right">
+            <h2 class="text-3xl font-black mb-6 text-purple-400 text-center drop-shadow-md">ألعاب التعلم والتركيز</h2>
+            
+            <h3 class="text-xl font-bold text-white mb-3">ألعاب تعليمية</h3>
+            <div class="grid grid-cols-1 gap-3 mb-6">
+                <button onclick="startEduGame('matchLetterPic')" class="btn-3d bg-space-800 border-2 border-teal-500/50 p-4 rounded-3xl flex items-center gap-4 text-right hover:bg-space-700">
+                    <div class="bg-teal-500/20 text-teal-400 p-3 rounded-2xl text-4xl"><i class="ph-fill ph-image"></i></div>
+                    <div class="text-right flex-1"><h3 class="text-xl font-black text-white">الحرف والصورة</h3></div>
+                </button>
+                <button onclick="startEduGame('matchNumCount')" class="btn-3d bg-space-800 border-2 border-orange-500/50 p-4 rounded-3xl flex items-center gap-4 text-right hover:bg-space-700">
+                    <div class="bg-orange-500/20 text-orange-400 p-3 rounded-2xl text-4xl"><i class="ph-fill ph-star"></i></div>
+                    <div class="text-right flex-1"><h3 class="text-xl font-black text-white">عد العناصر</h3></div>
+                </button>
+                <button onclick="startEduGame('listenChoose')" class="btn-3d bg-space-800 border-2 border-star/50 p-4 rounded-3xl flex items-center gap-4 text-right hover:bg-space-700">
+                    <div class="bg-star/20 text-star p-3 rounded-2xl text-4xl"><i class="ph-fill ph-headphones"></i></div>
+                    <div class="text-right flex-1"><h3 class="text-xl font-black text-white">اسمع واختر</h3></div>
+                </button>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mb-3">ألعاب التركيز المتقدمة</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="navigate('view-game-memory'); initMemoryGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-purple-400">
+                    <div class="text-4xl text-purple-400"><i class="ph-fill ph-cards"></i></div><span class="text-white font-bold text-sm">المطابقة</span>
+                </button>
+                <button onclick="navigate('view-game-focus'); initFocusGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-star">
+                    <div class="text-4xl text-star"><i class="ph-fill ph-shooting-star"></i></div><span class="text-white font-bold text-sm">صائد النجوم</span>
+                </button>
+                <button onclick="navigate('view-game-sequence'); initSequenceGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-blue-400">
+                    <div class="text-4xl text-blue-400"><i class="ph-fill ph-palette"></i></div><span class="text-white font-bold text-sm">تحدي الألوان</span>
+                </button>
+                <button onclick="navigate('view-game-guardian'); initGuardianGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-green-400">
+                    <div class="text-4xl text-green-400"><i class="ph-fill ph-shield-check"></i></div><span class="text-white font-bold text-sm">حارس المنزل</span>
+                </button>
+                <button onclick="navigate('view-game-numbers'); initNumbersGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-orange-400">
+                    <div class="text-4xl text-orange-400"><i class="ph-fill ph-math-operations"></i></div><span class="text-white font-bold text-sm">صائد الأرقام</span>
+                </button>
+                <button onclick="navigate('view-game-bubbles'); initBubblesGame();" class="btn-3d bg-space-800 p-4 rounded-2xl flex flex-col items-center gap-2 border-2 border-space-600 hover:border-calm">
+                    <div class="text-4xl text-calm"><i class="ph-fill ph-circles-three"></i></div><span class="text-white font-bold text-sm">الفقاعات الملونة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Universal Edu Game Area -->
+        <div id="view-edu-game-play" class="view-section hidden flex-col items-center justify-center p-6 h-full text-right">
+            <button onclick="navigate('view-edu-games')" class="absolute top-6 right-6 btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white z-10"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div id="edu-game-content" class="w-full flex flex-col items-center mt-10"></div>
+        </div>
+
+        <!-- Memory Game -->
+        <div id="view-game-memory" class="view-section hidden flex-col items-center w-full p-6 text-right">
+            <button onclick="navigate('view-edu-games')" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="flex justify-between w-full mb-4 bg-space-800 p-4 rounded-2xl"><span class="font-bold">المحاولات: <span id="memory-flips" class="text-star text-xl">0</span></span></div>
+            <div id="memory-board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]"></div>
+        </div>
+
+        <!-- Focus Game -->
+        <div id="view-game-focus" class="view-section hidden flex-col items-center w-full p-6 text-right">
+            <button onclick="navigate('view-edu-games')" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="flex justify-between w-full mb-4 bg-space-800 p-4 rounded-2xl"><span class="text-star font-bold">النقاط: <span id="focus-score" class="text-xl">0</span></span><span class="text-rose-400 font-bold">الوقت: <span id="focus-time" class="text-xl">30</span></span></div>
+            <div id="focus-area" class="relative w-full h-80 bg-space-900 rounded-3xl border-2 border-space-600 overflow-hidden shadow-inner touch-none"></div>
+            <button id="focus-start-btn" onclick="startFocusPlaying()" class="btn-3d mt-8 bg-star text-space-900 px-8 py-4 rounded-2xl font-black text-xl w-full">ابدأ الصيد!</button>
+        </div>
+
+        <!-- Sequence Game -->
+        <div id="view-game-sequence" class="view-section hidden flex-col items-center w-full p-6 text-right">
+            <button onclick="navigate('view-edu-games')" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="flex justify-between w-full mb-6 bg-space-800 p-4 rounded-2xl"><span class="font-bold text-white">المستوى: <span id="sequence-level" class="text-calm text-xl">1</span></span><span id="sequence-status" class="text-calm font-bold">استعد!</span></div>
+            <div class="grid grid-cols-2 gap-4 w-full max-w-[280px]" id="sequence-board">
+                <button id="color-btn-0" onclick="handleSeqClick(0)" class="color-btn w-full aspect-square rounded-[2rem] bg-rose-500 border-4 border-space-800 shadow-[0_0_15px_rgba(244,63,94,0.5)]"></button>
+                <button id="color-btn-1" onclick="handleSeqClick(1)" class="color-btn w-full aspect-square rounded-[2rem] bg-blue-500 border-4 border-space-800 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></button>
+                <button id="color-btn-2" onclick="handleSeqClick(2)" class="color-btn w-full aspect-square rounded-[2rem] bg-green-500 border-4 border-space-800 shadow-[0_0_15px_rgba(34,197,94,0.5)]"></button>
+                <button id="color-btn-3" onclick="handleSeqClick(3)" class="color-btn w-full aspect-square rounded-[2rem] bg-yellow-400 border-4 border-space-800 shadow-[0_0_15px_rgba(250,204,21,0.5)]"></button>
+            </div>
+            <button id="sequence-start-btn" onclick="startSeqPlaying()" class="btn-3d mt-10 bg-calm text-white px-8 py-4 rounded-2xl font-black text-xl w-full">ابدأ التحدي</button>
+        </div>
+
+        <!-- Guardian Game -->
+        <div id="view-game-guardian" class="view-section hidden flex-col items-center w-full p-6 text-right">
+            <button onclick="navigate('view-edu-games')" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="flex justify-between w-full mb-4 bg-space-800 p-4 rounded-2xl"><span class="text-green-400 font-bold">النقاط: <span id="guardian-score" class="text-xl">0</span></span><span class="text-rose-400 font-bold">الوقت: <span id="guardian-time" class="text-xl">30</span></span></div>
+            <p class="text-xs text-blue-200 mb-2 font-bold text-center">حرك الحارس بإصبعك لالتقاط النجوم فقط.</p>
+            <div id="guardian-area" class="relative w-full h-80 bg-space-900 rounded-3xl border-4 border-space-700 overflow-hidden touch-none shadow-inner">
+                <div id="guardian-player" class="absolute bottom-0 w-24 h-12 bg-gradient-to-t from-green-500 to-green-400 rounded-t-full flex items-center justify-center text-3xl text-white pb-1 z-20"><i class="ph-fill ph-shield-check"></i></div>
+            </div>
+            <button id="guardian-start-btn" onclick="startGuardianPlaying()" class="btn-3d mt-6 bg-green-500 text-white px-8 py-4 rounded-2xl font-black text-xl w-full">ابدأ الحراسة</button>
+        </div>
+
+        <!-- Numbers Game (Falling) -->
+        <div id="view-game-numbers" class="view-section hidden flex-col items-center w-full p-6 text-right">
+            <button onclick="navigate('view-edu-games')" class="self-start btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white mb-4"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div class="flex justify-between w-full mb-4 bg-space-800 p-4 rounded-2xl"><span class="text-orange-400 font-bold">النقاط: <span id="numfall-score" class="text-xl">0</span></span><span class="text-rose-400 font-bold">الوقت: <span id="numfall-time" class="text-xl">45</span></span></div>
+            <div class="mb-4 text-center">
+                <p class="text-sm text-blue-200 mb-2 font-bold">اصطد هذا الرقم:</p>
+                <div id="numfall-target" class="w-16 h-16 mx-auto bg-space-purple rounded-full flex items-center justify-center text-4xl font-black font-mono text-white border-4 border-white shadow-lg">?</div>
+            </div>
+            <div id="numfall-area" class="relative w-full h-72 bg-space-900 rounded-3xl border-4 border-space-700 overflow-hidden shadow-inner touch-none"></div>
+            <button id="numfall-start-btn" onclick="startNumfallPlaying()" class="btn-3d mt-6 bg-orange-500 text-white px-8 py-4 rounded-2xl font-black text-xl w-full">ابدأ اللعب</button>
+        </div>
+
+        <!-- Bubbles Game -->
+        <div id="view-game-bubbles" class="view-section hidden flex-col h-full bg-gradient-to-b from-calm to-blue-900 relative overflow-hidden">
+            <button onclick="navigate('view-edu-games')" class="absolute top-6 right-6 z-50 bg-white/20 backdrop-blur rounded-full p-3 text-white"><i class="ph-bold ph-x text-2xl"></i></button>
+            <div class="absolute top-6 left-6 z-50 bg-white/20 backdrop-blur px-6 py-2 rounded-full font-bold text-white shadow-lg text-lg">فرقع: <span id="bubbles-score">0</span></div>
+            <div id="bubbles-area" class="w-full h-full relative touch-none"></div>
+        </div>
+
+        <!-- ================= SHAPES HUB ================= -->
+        <div id="view-shapes-hub" class="view-section hidden flex-col p-6 min-h-full pb-24 text-right">
+            <h2 class="text-3xl font-black mb-6 text-rose-400 text-center drop-shadow-md">التركيز والأشكال</h2>
+            <div class="grid grid-cols-2 gap-3" id="shapes-games-grid"></div>
+        </div>
+
+        <div id="view-shapes-play" class="view-section hidden flex-col items-center justify-center p-6 h-full text-right relative">
+            <button onclick="navigate('view-shapes-hub')" class="absolute top-6 right-6 btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white z-10"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+            <div id="shapes-play-content" class="w-full flex flex-col items-center mt-10 max-w-sm"></div>
+        </div>
+
+        <!-- ================= PARENT & REPORTS MODULE ================= -->
+        <div id="view-mom" class="view-section hidden flex-col p-6 min-h-full text-right pb-24">
+            <h2 class="text-2xl font-black mb-6 text-rose-400 flex items-center gap-2"><i class="ph-fill ph-lock-key"></i> إعدادات القائد</h2>
+            <div class="glass-card p-5 rounded-3xl mb-6 text-center">
+                <p class="text-white mb-4 font-bold">نقاط <span id="mom-active-child" class="text-star"></span>: <span id="mom-points" class="text-star text-2xl font-black"></span> ⭐</p>
+                <button onclick="openReportsView()" class="btn-3d bg-blue-500 text-white px-4 py-4 rounded-2xl font-black w-full flex justify-center items-center gap-2 mb-3 shadow-[0_4px_0_0_#1d4ed8]">
+                    تقارير المختصين <i class="ph-bold ph-clipboard-text text-2xl"></i>
+                </button>
+                <button onclick="resetData()" class="btn-3d bg-rose-600 text-white px-4 py-3 rounded-2xl font-bold w-full mb-4 border-rose-500">حذف بيانات التطبيق بالكامل</button>
+                <button onclick="navigate('view-dashboard')" class="btn-3d bg-space-700 text-white px-4 py-3 rounded-2xl font-bold w-full">العودة للرئيسية</button>
+            </div>
+        </div>
+
+        <div id="view-reports" class="view-section hidden flex-col p-6 min-h-full text-right pb-24">
+            <div class="no-print flex justify-between items-center mb-6">
+                <button onclick="navigate('view-mom')" class="btn-3d bg-space-800 px-4 py-2 rounded-xl text-sm font-bold text-white"><i class="ph-bold ph-arrow-right"></i> رجوع</button>
+                <h2 class="text-xl font-black text-whatsapp flex items-center gap-2"><i class="ph-bold ph-whatsapp-logo text-2xl"></i> تقرير المتابعة</h2>
+            </div>
+            
+            <div class="glass-card p-5 rounded-3xl mb-6 border-2 border-space-600 no-print">
+                <h3 class="font-bold text-white mb-4 flex items-center gap-2 border-b border-space-600 pb-2"><i class="ph-fill ph-user-circle-gear text-calm text-xl"></i> بيانات المختص</h3>
+                <div class="space-y-4">
+                    <div><label class="form-label">اسم المختص</label><input type="text" id="wa-spec-name" class="form-input" placeholder="مثال: د. أحمد"></div>
+                    <div><label class="form-label">رقم الهاتف (الواتساب)</label><input type="tel" id="wa-spec-phone" class="form-input text-left" placeholder="مثال: 213555000000" dir="ltr"></div>
+                    <div><label class="form-label">التخصص</label><input type="text" id="wa-spec-role" class="form-input" placeholder="مثال: أخصائي تخاطب"></div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-5 rounded-3xl mb-6 border-2 border-space-600">
+                <h3 class="font-bold text-white mb-4 flex items-center gap-2 border-b border-space-600 pb-2 no-print"><i class="ph-fill ph-file-text text-star text-xl"></i> تفاصيل التقرير</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="form-label">الاسم</label><input type="text" id="wa-child-name" class="form-input bg-space-800" readonly></div>
+                        <div><label class="form-label">العمر</label><input type="text" id="wa-child-age" class="form-input bg-space-800" readonly></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><label class="form-label text-xs">التركيز</label><select id="wa-focus" class="form-input p-2 text-sm"><option value="ممتاز 🌟">ممتاز 🌟</option><option value="جيد 👍">جيد 👍</option><option value="يحتاج تحسين ⏳">يحتاج تحسين ⏳</option></select></div>
+                        <div><label class="form-label text-xs">التواصل</label><select id="wa-communication" class="form-input p-2 text-sm"><option value="ممتاز 🌟">ممتاز 🌟</option><option value="جيد 👍">جيد 👍</option><option value="يحتاج تحسين ⏳">يحتاج تحسين ⏳</option></select></div>
+                        <div><label class="form-label text-xs">المزاج</label><select id="wa-mood" class="form-input p-2 text-sm"><option value="هادئ 😊">هادئ 😊</option><option value="متقلب 😐">متقلب 😐</option><option value="منفعل 😠">منفعل 😠</option></select></div>
+                    </div>
+                    <div><label class="form-label">الأنشطة المنجزة</label><textarea id="wa-activities" class="form-input h-20 resize-none" placeholder="الأنشطة التي قام بها..."></textarea></div>
+                    <div><label class="form-label">ملاحظات الولي</label><textarea id="wa-notes" class="form-input h-20 resize-none" placeholder="ملاحظات إضافية..."></textarea></div>
+                    <div><label class="form-label">التوصيات</label><textarea id="wa-recommendations" class="form-input h-20 resize-none" placeholder="التوصيات..."></textarea></div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-3 no-print">
+                <button onclick="sendWhatsAppReport()" class="btn-3d-wa py-4 rounded-2xl font-black text-xl flex justify-center items-center gap-2">إرسال عبر واتساب <i class="ph-bold ph-whatsapp-logo text-2xl"></i></button>
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                    <button onclick="saveReportLocal()" class="btn-3d flex-1 bg-space-700 text-blue-300 py-2 rounded-xl font-bold flex flex-col justify-center items-center gap-1 text-xs hover:bg-space-600 hover:text-white"><i class="ph-bold ph-floppy-disk text-xl"></i> حفظ محلي</button>
+                    <button onclick="shareReport()" class="btn-3d flex-1 bg-space-700 text-blue-300 py-2 rounded-xl font-bold flex flex-col justify-center items-center gap-1 text-xs hover:bg-space-600 hover:text-white"><i class="ph-bold ph-share-network text-xl"></i> مشاركة</button>
+                    <button onclick="printReport()" class="btn-3d flex-1 bg-space-800 border border-space-500 text-white py-2 rounded-xl font-bold flex flex-col justify-center items-center gap-1 text-xs hover:bg-space-700"><i class="ph-bold ph-printer text-xl"></i> طباعة PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BOTTOM NAVIGATION ================= -->
+        <div id="bottom-nav" class="fixed bottom-0 w-full max-w-[480px] glass-card border-t border-space-700 flex justify-around p-3 z-40 rounded-t-[2rem] no-print">
+            <button onclick="navigate('view-dashboard')" class="nav-btn flex flex-col items-center text-blue-300 hover:text-star transition" data-target="view-dashboard"><i class="ph-fill ph-house text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الرئيسية</span></button>
+            <button onclick="openLearningGrid('english')" class="nav-btn flex flex-col items-center text-blue-300 hover:text-indigo-400 transition" data-target="view-english-grid"><i class="ph-fill ph-translate text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الإنجليزية</span></button>
+            <button onclick="openLearningGrid('letters')" class="nav-btn flex flex-col items-center text-blue-300 hover:text-teal-400 transition" data-target="view-letters-grid"><i class="ph-fill ph-text-aa text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الحروف</span></button>
+            <button onclick="openLearningGrid('numbers')" class="nav-btn flex flex-col items-center text-blue-300 hover:text-orange-400 transition" data-target="view-numbers-grid"><i class="ph-fill ph-list-numbers text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الأرقام</span></button>
+            <button onclick="navigate('view-shapes-hub')" class="nav-btn flex flex-col items-center text-blue-300 hover:text-rose-400 transition" data-target="view-shapes-hub"><i class="ph-fill ph-shapes text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الأشكال</span></button>
+            <button onclick="openParentLock('view-mom')" class="nav-btn flex flex-col items-center text-space-500 hover:text-pink-400 transition" data-target="view-mom"><i class="ph-fill ph-lock-key text-2xl mb-1"></i><span class="text-[10px] font-bold mt-1">الآباء</span></button>
+        </div>
+
+    </div>
+
+    <script>
+        // ================= JS CODE ORGANIZATION =================
+
+        // 1. Data and Constants
+        const lettersData = [{ char: 'أ', word: 'أسد', emoji: '🦁', tts: 'ألف، أسد' }, { char: 'ب', word: 'بطة', emoji: '🦆', tts: 'باء، بطة' }, { char: 'ت', word: 'تفاحة', emoji: '🍎', tts: 'تاء، تفاحة' }, { char: 'ث', word: 'ثعلب', emoji: '🦊', tts: 'ثاء، ثعلب' }, { char: 'ج', word: 'جمل', emoji: '🐪', tts: 'جيم، جمل' }, { char: 'ح', word: 'حصان', emoji: '🐴', tts: 'حاء، حصان' }, { char: 'خ', word: 'خروف', emoji: '🐑', tts: 'خاء، خروف' }, { char: 'د', word: 'ديك', emoji: '🐓', tts: 'دال، ديك' }, { char: 'ذ', word: 'ذئب', emoji: '🐺', tts: 'ذال، ذئب' }, { char: 'ر', word: 'رمان', emoji: '🍎', tts: 'راء، رمان' }, { char: 'ز', word: 'زرافة', emoji: '🦒', tts: 'زاي، زرافة' }, { char: 'س', word: 'سمكة', emoji: '🐟', tts: 'سين، سمكة' }, { char: 'ش', word: 'شمس', emoji: '🌞', tts: 'شين، شمس' }, { char: 'ص', word: 'صقر', emoji: '🦅', tts: 'صاد، صقر' }, { char: 'ض', word: 'ضفدع', emoji: '🐸', tts: 'ضاد، ضفدع' }, { char: 'ط', word: 'طائرة', emoji: '✈️', tts: 'طاء، طائرة' }, { char: 'ظ', word: 'ظرف', emoji: '✉️', tts: 'ظاء، ظرف' }, { char: 'ع', word: 'عنب', emoji: '🍇', tts: 'عين، عنب' }, { char: 'غ', word: 'غزالة', emoji: '🦌', tts: 'غين، غزالة' }, { char: 'ف', word: 'فيل', emoji: '🐘', tts: 'فاء، فيل' }, { char: 'ق', word: 'قرد', emoji: '🐒', tts: 'قاف، قرد' }, { char: 'ك', word: 'كلب', emoji: '🐕', tts: 'كاف، كلب' }, { char: 'ل', word: 'ليمون', emoji: '🍋', tts: 'لام، ليمون' }, { char: 'م', word: 'موز', emoji: '🍌', tts: 'ميم، موز' }, { char: 'ن', word: 'نحلة', emoji: '🐝', tts: 'نون، نحلة' }, { char: 'هـ', word: 'هدهد', emoji: '🐦', tts: 'هاء، هدهد' }, { char: 'و', word: 'وردة', emoji: '🌹', tts: 'واو، وردة' }, { char: 'ي', word: 'يد', emoji: '🖐️', tts: 'ياء، يد' }];
+        const numbersData = [{ char: '1', word: 'واحد', emoji: '🍎', count: 1, tts: 'واحد' }, { char: '2', word: 'اثنان', emoji: '🎈', count: 2, tts: 'اثنان' }, { char: '3', word: 'ثلاثة', emoji: '⭐', count: 3, tts: 'ثلاثة' }, { char: '4', word: 'أربعة', emoji: '🚗', count: 4, tts: 'أربعة' }, { char: '5', word: 'خمسة', emoji: '🖐️', count: 5, tts: 'خمسة' }, { char: '6', word: 'ستة', emoji: '⚽', count: 6, tts: 'ستة' }, { char: '7', word: 'سبعة', emoji: '🦋', count: 7, tts: 'سبعة' }, { char: '8', word: 'ثمانية', emoji: '🐟', count: 8, tts: 'ثمانية' }, { char: '9', word: 'تسعة', emoji: '🍬', count: 9, tts: 'تسعة' }, { char: '10', word: 'عشرة', emoji: '🌟', count: 10, tts: 'عشرة' }];
+        const englishData = [ { char: 'A', word: 'Apple', emoji: '🍎', tts: 'A, Apple' }, { char: 'B', word: 'Bear', emoji: '🐻', tts: 'B, Bear' }, { char: 'C', word: 'Cat', emoji: '🐱', tts: 'C, Cat' }, { char: 'D', word: 'Dog', emoji: '🐶', tts: 'D, Dog' }, { char: 'E', word: 'Elephant', emoji: '🐘', tts: 'E, Elephant' }, { char: 'F', word: 'Fish', emoji: '🐟', tts: 'F, Fish' }, { char: 'G', word: 'Giraffe', emoji: '🦒', tts: 'G, Giraffe' }, { char: 'H', word: 'Hat', emoji: '🎩', tts: 'H, Hat' }, { char: 'I', word: 'Ice cream', emoji: '🍦', tts: 'I, Ice cream' }, { char: 'J', word: 'Juice', emoji: '🥤', tts: 'J, Juice' }, { char: 'K', word: 'Key', emoji: '🔑', tts: 'K, Key' }, { char: 'L', word: 'Lion', emoji: '🦁', tts: 'L, Lion' }, { char: 'M', word: 'Monkey', emoji: '🐒', tts: 'M, Monkey' }, { char: 'N', word: 'Nest', emoji: '🪹', tts: 'N, Nest' }, { char: 'O', word: 'Orange', emoji: '🍊', tts: 'O, Orange' }, { char: 'P', word: 'Penguin', emoji: '🐧', tts: 'P, Penguin' }, { char: 'Q', word: 'Queen', emoji: '👑', tts: 'Q, Queen' }, { char: 'R', word: 'Rabbit', emoji: '🐰', tts: 'R, Rabbit' }, { char: 'S', word: 'Sun', emoji: '☀️', tts: 'S, Sun' }, { char: 'T', word: 'Tree', emoji: '🌳', tts: 'T, Tree' }, { char: 'U', word: 'Umbrella', emoji: '☂️', tts: 'U, Umbrella' }, { char: 'V', word: 'Violin', emoji: '🎻', tts: 'V, Violin' }, { char: 'W', word: 'Watermelon', emoji: '🍉', tts: 'W, Watermelon' }, { char: 'X', word: 'Xylophone', emoji: '🎹', tts: 'X, Xylophone' }, { char: 'Y', word: 'Yo-yo', emoji: '🪀', tts: 'Y, Yo-yo' }, { char: 'Z', word: 'Zebra', emoji: '🦓', tts: 'Z, Zebra' } ];
+        const SHAPES_DATA = [
+            { id: 'circle', name: 'الدائرة', icon: 'ph-circle', color: 'text-rose-500', hex: '#f43f5e' },
+            { id: 'square', name: 'المربع', icon: 'ph-square', color: 'text-blue-500', hex: '#3b82f6' },
+            { id: 'triangle', name: 'المثلث', icon: 'ph-triangle', color: 'text-green-500', hex: '#22c55e' },
+            { id: 'star', name: 'النجمة', icon: 'ph-star', color: 'text-star', hex: '#fbbf24' },
+            { id: 'heart', name: 'القلب', icon: 'ph-heart', color: 'text-pink-500', hex: '#ec4899' }
+        ];
+
+        // 2. Global State Variables
+        window.appData = { activeChildId: null, children: [], specialist: { name: '', phone: '', specialty: '' }, reports: [] };
+        
+        let currentLearningItem = null, currentLearningType = null;
+        let traceCtx = null, isTracing = false;
+        
+        // Game Loops & State
+        let activeLoops = [], activeTimeouts = [], activeIntervals = [];
+        let gameScore = 0, gameTime = 0, gameLevel = 1;
+        let memState = { flipped: false, lock: false, c1: null, c2: null, matches: 0, flips: 0 };
+        let seqState = { seq: [], pSeq: [] };
+        let fallState = { target: null, px: 50 };
+        let eduGameType = '', eduCurrentTarget = null, shCurrentTarget = null;
+        let parentLockTarget = null;
+
+        // 3. Audio Handlers
+        function playTTS(text, rate=0.85, lang='ar-SA') {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = lang; 
+                    utterance.rate = rate; 
+                    window.speechSynthesis.speak(utterance);
+                }, 50);
+            }
+        }
+        
+        function playCurrentItemTTS() {
+            if(currentLearningItem) {
+                const lang = currentLearningType === 'english' ? 'en-US' : 'ar-SA';
+                playTTS(currentLearningItem.tts, 0.85, lang);
+            }
+        }
+
+        function closeAllGames() {
+            activeIntervals.forEach(clearInterval); activeIntervals = [];
+            activeTimeouts.forEach(clearTimeout); activeTimeouts = [];
+            activeLoops.forEach(fn => fn()); activeLoops = [];
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function safeRegisterInterval(fn, time) { const id = setInterval(fn, time); activeIntervals.push(id); return id; }
+        function safeRegisterTimeout(fn, time) { const id = setTimeout(fn, time); activeTimeouts.push(id); return id; }
+        function safeRegisterLoop(fn) { let running = true; const loop = () => { if(running) { fn(); requestAnimationFrame(loop); } }; activeLoops.push(() => running = false); requestAnimationFrame(loop); }
+
+        // 4. Core Navigation & Initialization
+        function navigate(viewId) {
+            closeAllGames();
+            document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+            const target = document.getElementById(viewId); 
+            if(target) target.classList.remove('hidden');
+            
+            const hideNavScreens = ['view-welcome', 'view-select-child', 'view-profile', 'view-learning-detail', 'view-edu-game-play', 'view-shapes-play', 'view-reports', 'view-wa-report', 'view-game-memory', 'view-game-focus', 'view-game-sequence', 'view-game-guardian', 'view-game-numbers', 'view-game-bubbles'];
+            if(hideNavScreens.includes(viewId)) document.getElementById('bottom-nav').classList.add('hidden'); 
+            else document.getElementById('bottom-nav').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const icon = btn.querySelector('i');
+                if(btn.dataset.target === viewId || 
+                  (viewId.startsWith('view-letters') && btn.dataset.target === 'view-letters-grid') || 
+                  (viewId.startsWith('view-numbers') && btn.dataset.target === 'view-numbers-grid') || 
+                  (viewId.startsWith('view-english') && btn.dataset.target === 'view-english-grid') ||
+                  (viewId.startsWith('view-edu') && btn.dataset.target === 'view-edu-games') || 
+                  (viewId.startsWith('view-shapes') && btn.dataset.target === 'view-shapes-hub')) {
+                    btn.classList.add('text-star'); 
+                    btn.classList.remove('text-blue-300'); 
+                    if(!icon.classList.contains('ph-fill')) icon.className = icon.className.replace('ph-bold', 'ph-fill');
+                } else {
+                    btn.classList.remove('text-star'); 
+                    btn.classList.add('text-blue-300'); 
+                    icon.className = icon.className.replace('ph-fill', 'ph-bold');
+                }
+            });
+
+            if(viewId === 'view-dashboard') updateDashboard();
+            if(viewId === 'view-select-child') renderChildrenList();
+            if(viewId === 'view-mom') { 
+                const child = getChild(); 
+                document.getElementById('mom-active-child').innerText = child ? child.name : ''; 
+                document.getElementById('mom-points').innerText = child ? child.points : 0; 
+            }
+            if(viewId === 'view-letters-grid' && document.getElementById('letters-container').children.length === 0) openLettersList(false);
+            if(viewId === 'view-numbers-grid' && document.getElementById('numbers-container').children.length === 0) openNumbersList(false);
+            if(viewId === 'view-english-grid' && document.getElementById('english-container').children.length === 0) openEnglishList(false);
+            window.scrollTo(0,0);
+        }
+
+        function finishInit() {
+            const local = localStorage.getItem('jasirMultiState_Perfect2');
+            if(local) { 
+                const parsed = JSON.parse(local); 
+                if(parsed.children && parsed.children.length > 0) window.appData = parsed; 
+            }
+            if (!window.appData.specialist) window.appData.specialist = { name: '', phone: '', specialty: '' };
+            if (window.appData.children.length > 0) { 
+                if(!window.appData.activeChildId) window.appData.activeChildId = window.appData.children[0].id; 
+                navigate('view-dashboard'); 
+            } else { 
+                navigate('view-welcome'); 
+            }
+            buildShapesHub();
+        }
+
+        // 5. Utility Functions
+        function saveState() { localStorage.setItem('jasirMultiState_Perfect2', JSON.stringify(window.appData)); if(!document.getElementById('view-dashboard').classList.contains('hidden')) updateDashboard(); }
+        function getChild() { return window.appData.children.find(c => c.id === window.appData.activeChildId); }
+        function showModal(title, text, icon = 'ph-info') { document.getElementById('modal-title').innerText = title; document.getElementById('modal-text').innerText = text; document.getElementById('modal-icon').innerHTML = `<i class="ph-fill ${icon}"></i>`; document.getElementById('custom-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+        function showCalmMessage(msg = 'حاول مرة أخرى يا بطل') { const toast = document.getElementById('calm-toast'); toast.innerHTML = `<i class="ph-bold ph-info"></i> ${msg}`; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+        
+        // 6. Profile & Dashboard
+        function handleWelcomeClick() { if(window.appData.children.length === 0) navigate('view-profile'); else navigate('view-select-child'); }
+        function openAddChild() { document.getElementById('input-name').value = ''; document.getElementById('input-age').value = ''; document.getElementById('btn-cancel-profile').classList.toggle('hidden', window.appData.children.length === 0); navigate('view-profile'); }
+        function saveProfile() { const name = document.getElementById('input-name').value.trim(); const age = parseInt(document.getElementById('input-age').value); if(!name || !age) return showCalmMessage('الرجاء إدخال الاسم والعمر'); const newChild = { id: 'c_'+Date.now(), name, age, points: 0 }; window.appData.children.push(newChild); window.appData.activeChildId = newChild.id; saveState(); navigate('view-dashboard'); fireConfetti(); showModal('أهلاً بك!', `مرحباً بك يا بطل ${name}!`, 'ph-star'); }
+        function renderChildrenList() { const list = document.getElementById('children-list'); list.innerHTML = ''; window.appData.children.forEach(c => { const btn = document.createElement('button'); const isActive = window.appData.activeChildId === c.id; btn.className = 'btn-3d glass-card p-4 rounded-2xl flex flex-col items-center hover:border-star hover:bg-space-700 border-2 ' + (isActive ? 'border-star' : 'border-transparent'); btn.innerHTML = `<div class="w-16 h-16 bg-gradient-to-tr from-space-lightPurple to-space-purple rounded-full flex items-center justify-center mx-auto text-3xl font-black text-white mb-2">${c.name.charAt(0)}</div><span class="font-bold text-white truncate block">${c.name}</span>`; btn.onclick = () => { window.appData.activeChildId = c.id; saveState(); navigate('view-dashboard'); }; list.appendChild(btn); }); }
+        function updateDashboard() { const child = getChild(); if(child) { document.getElementById('display-name').innerText = child.name; document.getElementById('display-points').innerText = child.points; } }
+        function addPoints(pts) { const child = getChild(); if(child) { child.points += pts; saveState(); fireConfetti(); playTTS('أحسنت! حصلت على نجمة'); } }
+        function resetData() { if(confirm('حذف جميع البيانات؟')) { localStorage.removeItem('jasirMultiState_Perfect2'); window.appData = { activeChildId: null, children: [], specialist: {name:'', phone:'', specialty:''} }; navigate('view-welcome'); } }
+
+        function openParentLock(target) { parentLockTarget = target; const n1 = Math.floor(Math.random() * 10) + 1; const n2 = Math.floor(Math.random() * 10) + 1; document.getElementById('math-question').innerText = `${n1} + ${n2} = ?`; document.getElementById('math-question').dataset.ans = n1 + n2; document.getElementById('math-answer').value = ''; document.getElementById('parent-lock-modal').classList.remove('hidden'); }
+        function closeParentLock() { document.getElementById('parent-lock-modal').classList.add('hidden'); }
+        function checkParentLock() { const ans = parseInt(document.getElementById('math-answer').value); const correct = parseInt(document.getElementById('math-question').dataset.ans); if(ans === correct) { closeParentLock(); if(parentLockTarget) navigate(parentLockTarget); } else { showCalmMessage('إجابة خاطئة'); document.getElementById('math-answer').value = ''; } }
+
+        // 7. Reports & WhatsApp
+        function openReportsView() { const child = getChild(); if(!child) return showCalmMessage('الرجاء اختيار بطل أولاً'); document.getElementById('wa-spec-name').value = window.appData.specialist?.name || ''; document.getElementById('wa-spec-phone').value = window.appData.specialist?.phone || ''; document.getElementById('wa-spec-role').value = window.appData.specialist?.specialty || ''; document.getElementById('wa-child-name').value = child.name; document.getElementById('wa-child-age').value = child.age + ' سنوات'; document.getElementById('wa-activities').value = ''; document.getElementById('wa-notes').value = ''; document.getElementById('wa-recommendations').value = ''; navigate('view-reports'); }
+        function saveSpecialistData() { const name = document.getElementById('wa-spec-name').value.trim(); const phone = document.getElementById('wa-spec-phone').value.trim(); const specialty = document.getElementById('wa-spec-role').value.trim(); if(!phone) return showCalmMessage('رقم هاتف المختص مطلوب للتواصل'); window.appData.specialist = { name, phone, specialty }; saveState(); showCalmMessage('تم حفظ بيانات المختص بنجاح!'); }
+        function getReportText() { const childName = document.getElementById('wa-child-name').value; const age = document.getElementById('wa-child-age').value; const focus = document.getElementById('wa-focus').value; const communication = document.getElementById('wa-communication').value; const mood = document.getElementById('wa-mood').value; const activities = document.getElementById('wa-activities').value || 'لم يتم تسجيل أنشطة.'; const notes = document.getElementById('wa-notes').value || 'لا توجد ملاحظات.'; const recommendations = document.getElementById('wa-recommendations').value || 'لا توجد توصيات.'; return `🏢 مؤسسة جسر المستقبل\n🌉 Jasir AlMustaqbal\n\n📋 تقرير متابعة طفل\n\n👦 اسم الطفل: ${childName}\n🎂 العمر: ${age}\n📅 التاريخ: ${new Date().toLocaleDateString('ar-DZ')}\n\n🧠 مستوى التركيز: ${focus}\n🗣️ مستوى التواصل: ${communication}\n😊 الحالة المزاجية: ${mood}\n\n🎮 الأنشطة:\n${activities}\n\n📝 ملاحظات الولي:\n${notes}\n\n💡 التوصيات:\n${recommendations}\n\n━━━━━━━━━━━━━━\nتم إنشاء هذا التقرير عبر:\nتطبيق جسر المستقبل\n\n👨‍💻 إنجاز وتصميم:\nالأستاذ عراج زكرياء\nمستشار التربية\n📞 0777 10 95 62\n📍 الجزائر - وهران\n━━━━━━━━━━━━━━`; }
+        function sendWhatsAppReport() { saveSpecialistData(); const phone = document.getElementById("wa-spec-phone").value.replace(/[^0-9]/g, ''); if (!phone) return showCalmMessage('الرجاء إدخال رقم هاتف المختص أولاً'); window.open(`https://wa.me/${phone}?text=${encodeURIComponent(getReportText())}`, '_blank'); }
+        function saveReportLocal() { saveSpecialistData(); const reportText = getReportText(); if(!window.appData.reports) window.appData.reports = []; window.appData.reports.push({ id: 'rep_' + Date.now(), date: new Date().toISOString(), text: reportText }); saveState(); showModal('تم الحفظ!', 'تم حفظ التقرير محلياً بنجاح.', 'ph-check-circle'); }
+        function shareReport() { const message = getReportText(); if (navigator.share) { navigator.share({ title: 'تقرير جسر المستقبل', text: message }).catch(err => console.error(err)); } else { navigator.clipboard.writeText(message).then(() => showCalmMessage('تم نسخ التقرير للحافظة')); } }
+        function printReport() { const message = getReportText(); const htmlContent = message.replace(/🏢 مؤسسة جسر المستقبل\n🌉 Jasir AlMustaqbal\n\n📋 تقرير متابعة طفل\n\n/g, ''); const printWindow = window.open('', '_blank'); printWindow.document.write(`<html dir="rtl" lang="ar"><head><title>تقرير جسر المستقبل</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"><style>body{font-family:'Cairo',sans-serif;padding:40px;line-height:1.8;color:#0f172a;background:#fff}.header{text-align:center;border-bottom:3px solid #22c55e;padding-bottom:20px;margin-bottom:20px}h1{color:#166534;font-size:28px;font-weight:900;margin-bottom:5px}.content{white-space:pre-wrap;font-size:16px;font-weight:bold;background:#f8fafc;padding:30px;border-radius:15px;border:2px solid #e2e8f0}@media print{body{padding:0}.content{border:none;background:transparent;padding:0}}</style></head><body><div class="header"><h1>🏢 مؤسسة جسر المستقبل</h1><p>تقرير المتابعة الدوري للمختصين</p></div><div class="content">${htmlContent}</div><script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},500);};<\/script></body></html>`); printWindow.document.close(); }
+
+        // 8. Learning Grids
+        function openLearningGrid(type) {
+            const isEng = type === 'english'; const isNum = type === 'numbers';
+            const data = isEng ? englishData : (isNum ? numbersData : lettersData);
+            const cont = document.getElementById(`${type}-container`); cont.innerHTML = '';
+            
+            data.forEach((item, i) => {
+                const btn = document.createElement('button');
+                btn.className = `btn-3d bg-space-800 border-2 rounded-2xl p-4 flex justify-center items-center text-4xl font-black text-white hover:bg-space-700 ${isEng ? 'border-indigo-500/30 hover:border-indigo-400 font-en' : (isNum ? 'border-orange-500/30 hover:border-orange-400 font-mono' : 'border-teal-500/30 hover:border-teal-400')}`;
+                btn.innerText = item.char;
+                btn.onclick = () => openLearningDetail(type, i);
+                cont.appendChild(btn);
+            });
+            navigate(`view-${type}-grid`);
+        }
+
+        function openLearningDetail(type, index) {
+            currentLearningType = type;
+            const data = type === 'english' ? englishData[index] : (type === 'numbers' ? numbersData[index] : lettersData[index]);
+            currentLearningItem = data;
+            
+            const charEl = document.getElementById('detail-main-char');
+            charEl.innerText = data.char;
+            charEl.className = `text-[8rem] font-black text-white leading-none mb-2 drop-shadow-md ${type==='english'?'font-en':(type==='numbers'?'font-mono':'')}`;
+            document.getElementById('detail-word').innerText = data.word;
+            
+            const visEl = document.getElementById('detail-visual');
+            if(type === 'numbers') {
+                let s = ''; for(let i=0; i<data.count; i++) s += data.emoji;
+                visEl.innerHTML = s; visEl.className = 'flex flex-wrap justify-center gap-1 text-4xl drop-shadow-md mb-2 max-w-[280px]';
+            } else {
+                visEl.innerText = data.emoji; visEl.className = 'text-6xl drop-shadow-xl mb-2';
+            }
+            
+            setTimeout(() => setupCanvas(data.char), 100);
+            const lang = type === 'english' ? 'en-US' : 'ar-SA';
+            playTTS(data.tts, 0.85, lang);
+            navigate('view-learning-detail');
+        }
+
+        function backFromDetail() { 
+            if(currentLearningType === 'letter') navigate('view-letters-grid'); 
+            else if(currentLearningType === 'english') navigate('view-english-grid');
+            else navigate('view-numbers-grid'); 
+        }
+
+        // Trace Canvas
+        let traceCanvas, tCtx;
+        function setupCanvas(char) {
+            traceCanvas = document.getElementById('trace-canvas'); if(!traceCanvas) return;
+            const rect = traceCanvas.parentElement.getBoundingClientRect();
+            if(rect.width > 0) { traceCanvas.width = rect.width - 40; traceCanvas.height = traceCanvas.width; }
+            tCtx = traceCanvas.getContext('2d');
+            clearTraceCanvas();
+            
+            traceCanvas.onpointerdown = (e) => { isTracing = true; tCtx.beginPath(); const p = getPos(e); tCtx.moveTo(p.x, p.y); e.preventDefault(); };
+            traceCanvas.onpointermove = (e) => { if(!isTracing) return; const p = getPos(e); tCtx.lineTo(p.x, p.y); tCtx.stroke(); e.preventDefault(); };
+            const stop = () => { isTracing = false; tCtx.closePath(); };
+            traceCanvas.onpointerup = stop; traceCanvas.onpointerout = stop;
+            traceCanvas.ontouchstart = traceCanvas.onpointerdown; traceCanvas.ontouchmove = traceCanvas.onpointermove; traceCanvas.ontouchend = stop;
+            
+            function getPos(e) { const r = traceCanvas.getBoundingClientRect(); const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; return {x: x - r.left, y: y - r.top}; }
+        }
+
+        function clearTraceCanvas() {
+            if(!tCtx || !traceCanvas) return;
+            tCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
+            tCtx.lineWidth = 20; tCtx.lineCap = 'round'; tCtx.lineJoin = 'round'; tCtx.strokeStyle = '#8b5cf6';
+            if(currentLearningItem) {
+                tCtx.font = `900 ${traceCanvas.width/1.5}px ${currentLearningType === 'english' ? 'system-ui' : 'Cairo'}`;
+                tCtx.fillStyle = "rgba(255,255,255,0.05)"; tCtx.textAlign = "center"; tCtx.textBaseline = "middle";
+                tCtx.fillText(currentLearningItem.char, traceCanvas.width/2, traceCanvas.height/2 + (currentLearningType==='english'?20:10));
+            }
+        }
+
+        // ================= EDU GAMES (A/B/C) =================
+        function startEduGame(gameId) { eduGameType = gameId; gameScore = 0; navigate('view-edu-game-play'); generateEduGame(); }
+        
+        function generateEduGame() {
+            if(gameScore >= 5) { addPoints(5); document.getElementById('edu-game-content').innerHTML = `<div class="text-center mt-10"><i class="ph-fill ph-trophy text-8xl text-star mb-4 animate-float"></i><h2 class="text-4xl font-black text-white mb-6">أنت بطل رائع!</h2><button onclick="navigate('view-edu-games')" class="btn-3d bg-space-lightPurple text-white px-8 py-3 rounded-2xl font-bold text-xl">المزيد من الألعاب</button></div>`; return; }
+            const cont = document.getElementById('edu-game-content');
+            cont.innerHTML = `<div class="w-full flex justify-between items-center mb-8 bg-space-800 p-4 rounded-2xl"><span class="text-white font-bold">النقاط: <span class="text-star text-xl">${gameScore}/5</span></span></div>`;
+            
+            let qText = '', visual = '', optsHTML = `<div class="grid grid-cols-2 gap-4 w-full max-w-[320px]">`;
+            
+            if(eduGameType === 'matchLetterPic') {
+                const target = lettersData[Math.floor(Math.random() * lettersData.length)]; eduCurrentTarget = target.char; qText = 'أي حرف يناسب الصورة؟';
+                visual = `<div class="text-9xl mb-8 animate-float drop-shadow-xl">${target.emoji}</div>`;
+                const opts = [target.char, ...lettersData.filter(l=>l.char!==target.char).sort(()=>Math.random()-0.5).slice(0,3).map(l=>l.char)].sort(()=>Math.random()-0.5);
+                opts.forEach(o => { optsHTML += `<button onclick="checkEdu('${o}')" class="btn-3d bg-space-800 p-6 rounded-3xl text-6xl font-black border-4 border-teal-500 hover:bg-space-700">${o}</button>`; });
+            } 
+            else if(eduGameType === 'matchNumCount') {
+                const targetNum = Math.floor(Math.random() * 9) + 1; eduCurrentTarget = targetNum; qText = 'كم عدد النجوم؟';
+                let s = ''; for(let i=0;i<targetNum;i++) s+='⭐';
+                visual = `<div class="flex flex-wrap justify-center gap-2 text-5xl mb-8 max-w-[250px] drop-shadow-md">${s}</div>`;
+                const opts = [targetNum]; while(opts.length<4){ let r = Math.floor(Math.random()*10)+1; if(!opts.includes(r)) opts.push(r); } opts.sort(()=>Math.random()-0.5);
+                opts.forEach(o => { optsHTML += `<button onclick="checkEdu(${o})" class="btn-3d bg-space-800 p-6 rounded-3xl text-6xl font-black font-mono border-4 border-orange-500 hover:bg-space-700">${o}</button>`; });
+            } 
+            else if(eduGameType === 'listenChoose') {
+                const target = lettersData[Math.floor(Math.random() * lettersData.length)]; eduCurrentTarget = target.char; qText = 'استمع واختر الحرف';
+                visual = `<div class="bg-star p-8 rounded-full mb-8 cursor-pointer hover:scale-110 shadow-lg text-space-900" onclick="playTTS('${target.char}')"><i class="ph-fill ph-speaker-high text-6xl"></i></div>`;
+                const opts = [target.char, ...lettersData.filter(l=>l.char!==target.char).sort(()=>Math.random()-0.5).slice(0,3).map(l=>l.char)].sort(()=>Math.random()-0.5);
+                opts.forEach(o => { optsHTML += `<button onclick="checkEdu('${o}')" class="btn-3d bg-space-800 p-6 rounded-3xl text-6xl font-black border-4 border-star hover:bg-space-700">${o}</button>`; });
+                setTimeout(()=>playTTS(target.char), 500);
+            }
+            
+            optsHTML += `</div>`;
+            cont.innerHTML += `<h3 class="text-3xl font-black text-white mb-8 text-center drop-shadow-md">${qText}</h3>` + visual + optsHTML;
+            playTTS(qText);
+        }
+
+        function checkEdu(val) {
+            if(val == eduCurrentTarget) {
+                playTTS('رائع!'); fireConfetti(); gameScore++; 
+                const btns = event.currentTarget.parentElement.children;
+                Array.from(btns).forEach(b => { if(b.innerText == val) { b.classList.replace('bg-space-800', 'bg-success'); b.style.borderColor = '#22c55e'; } });
+                setTimeout(() => generateEduGame(), 1500);
+            } else {
+                showCalmMessage(); const btn = event.currentTarget;
+                btn.classList.add('anim-shake', 'opacity-50'); setTimeout(() => btn.classList.remove('anim-shake'), 400);
+            }
+        }
+
+        // ================= ADVANCED GAMES (1-6) =================
+        function initMemoryGame() {
+            const board = document.getElementById('memory-board'); board.innerHTML = '';
+            memState = { flipped: false, lock: false, c1: null, c2: null, matches: 0, flips: 0 };
+            document.getElementById('memory-flips').innerText = '0';
+            const icons = ['ph-planet','ph-rocket','ph-star','ph-alien','ph-moon','ph-sun'];
+            const deck = [...icons, ...icons].sort(() => Math.random() - 0.5);
+            
+            deck.forEach(icon => {
+                const card = document.createElement('div'); card.className = 'memory-card'; card.dataset.icon = icon;
+                card.innerHTML = `<div class="memory-inner"><div class="memory-front"><i class="ph-bold ph-question"></i></div><div class="memory-back"><i class="ph-fill ${icon}"></i></div></div>`;
+                card.onclick = () => {
+                    if(memState.lock || card === memState.c1 || card.classList.contains('flip')) return;
+                    card.classList.add('flip');
+                    if(!memState.flipped) { memState.flipped = true; memState.c1 = card; return; }
+                    memState.c2 = card; memState.lock = true; memState.flips++; document.getElementById('memory-flips').innerText = memState.flips;
+                    if(memState.c1.dataset.icon === memState.c2.dataset.icon) {
+                        memState.matches++; memState.flipped = false; memState.lock = false; memState.c1 = null; memState.c2 = null;
+                        if(memState.matches === icons.length) { addPoints(5); setTimeout(()=>navigate('view-edu-games'), 2000); }
+                    } else {
+                        safeRegisterTimeout(() => { memState.c1.classList.remove('flip'); memState.c2.classList.remove('flip'); memState.flipped = false; memState.lock = false; memState.c1 = null; memState.c2 = null; }, 1000);
+                    }
+                };
+                board.appendChild(card);
+            });
+        }
+
+        function initFocusGame() { document.getElementById('focus-start-btn').classList.remove('hidden'); document.getElementById('focus-area').innerHTML = ''; document.getElementById('focus-score').innerText = '0'; document.getElementById('focus-time').innerText = '30'; }
+        function startFocusPlaying() {
+            document.getElementById('focus-start-btn').classList.add('hidden');
+            gameScore = 0; gameTime = 30; document.getElementById('focus-score').innerText = gameScore;
+            
+            safeRegisterInterval(() => {
+                gameTime--; document.getElementById('focus-time').innerText = gameTime;
+                if(gameTime <= 0) { closeAllGames(); addPoints(Math.floor(gameScore/5)); showModal('انتهى الوقت!', `اصطدت ${gameScore} نجمة!`, 'ph-star'); document.getElementById('focus-start-btn').classList.remove('hidden'); }
+            }, 1000);
+            
+            const spawn = () => {
+                const area = document.getElementById('focus-area'); area.innerHTML = '';
+                const star = document.createElement('div');
+                star.className = 'absolute text-star text-6xl cursor-pointer drop-shadow-lg transition-transform active:scale-75 touch-none';
+                star.innerHTML = '<i class="ph-fill ph-star"></i>';
+                star.style.left = Math.max(10, Math.random() * (area.clientWidth - 60)) + 'px';
+                star.style.top = Math.max(10, Math.random() * (area.clientHeight - 60)) + 'px';
+                star.onpointerdown = () => { gameScore++; document.getElementById('focus-score').innerText = gameScore; clearTimeout(focusSpawner); spawn(); };
+                area.appendChild(star);
+                focusSpawner = safeRegisterTimeout(spawn, Math.max(600, 1500 - (gameScore * 30)));
+            }; spawn();
+        }
+
+        function initSequenceGame() { document.getElementById('sequence-start-btn').classList.remove('hidden'); seqState = { seq: [], pSeq: [] }; gameLevel = 1; document.getElementById('sequence-level').innerText = '1'; document.getElementById('sequence-status').innerText = 'استعد!'; document.getElementById('sequence-board').classList.add('pointer-events-none'); }
+        function startSeqPlaying() { document.getElementById('sequence-start-btn').classList.add('hidden'); seqState = { seq: [], pSeq: [] }; gameLevel = 1; document.getElementById('sequence-level').innerText = '1'; nextSeqRound(); }
+        function nextSeqRound() { seqState.pSeq = []; seqState.seq.push(Math.floor(Math.random() * 4)); document.getElementById('sequence-status').innerText = 'راقب جيداً...'; document.getElementById('sequence-board').classList.add('pointer-events-none'); playSeqRec(0); }
+        function playSeqRec(i) {
+            if(i >= seqState.seq.length) { document.getElementById('sequence-status').innerText = 'دورك الآن!'; document.getElementById('sequence-board').classList.remove('pointer-events-none'); return; }
+            const btn = document.getElementById(`color-btn-${seqState.seq[i]}`); btn.classList.add('active', 'border-white');
+            sequenceTimeouts.push(setTimeout(() => { btn.classList.remove('active', 'border-white'); sequenceTimeouts.push(setTimeout(() => playSeqRec(i+1), 300)); }, 600));
+        }
+        function handleSeqClick(idx) {
+            if(seqState.seq[seqState.pSeq.length] === idx) {
+                seqState.pSeq.push(idx); const btn = document.getElementById(`color-btn-${idx}`); btn.classList.add('active', 'border-white'); safeRegisterTimeout(() => btn.classList.remove('active', 'border-white'), 200);
+                if(seqState.pSeq.length === seqState.seq.length) {
+                    gameLevel++; document.getElementById('sequence-level').innerText = gameLevel; document.getElementById('sequence-board').classList.add('pointer-events-none');
+                    if(gameLevel > 5) { addPoints(5); showModal('ذاكرة حديدية!', 'تجاوزت جميع المستويات بنجاح', 'ph-brain'); document.getElementById('sequence-start-btn').classList.remove('hidden'); } 
+                    else { document.getElementById('sequence-status').innerText = 'أحسنت!'; safeRegisterTimeout(nextSeqRound, 1000); }
+                }
+            } else { document.getElementById('sequence-status').innerText = 'خطأ! ركز جيداً'; document.getElementById('sequence-board').classList.add('pointer-events-none'); safeRegisterTimeout(() => playSeqRec(0), 1000); }
+        }
+
+        function initGuardianGame() { document.getElementById('guardian-start-btn').classList.remove('hidden'); document.getElementById('guardian-score').innerText = '0'; document.getElementById('guardian-time').innerText = '30'; const area = document.getElementById('guardian-area'); area.innerHTML = '<div id="guardian-player" class="absolute bottom-0 w-24 h-12 bg-gradient-to-t from-green-500 to-green-400 rounded-t-full flex items-center justify-center text-3xl text-white pb-1 z-20"><i class="ph-fill ph-shield-check"></i></div>'; }
+        function startGuardianPlaying() {
+            document.getElementById('guardian-start-btn').classList.add('hidden'); gameScore = 0; gameTime = 30; document.getElementById('guardian-score').innerText = gameScore; fallState.px = 50;
+            const area = document.getElementById('guardian-area'); const player = document.getElementById('guardian-player');
+            player.style.left = '50%'; player.style.transform = 'translateX(-50%)';
+            
+            area.onpointermove = (e) => { const rect = area.getBoundingClientRect(); const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left; fallState.px = Math.max(20, Math.min(x, rect.width - 20)); player.style.left = fallState.px + 'px'; };
+            area.onpointerdown = area.onpointermove; area.ontouchmove = area.onpointermove;
+
+            safeRegisterInterval(() => { gameTime--; document.getElementById('guardian-time').innerText = gameTime; if(gameTime <= 0) { closeAllGames(); addPoints(Math.floor(gameScore/3)); showModal('انتهى الوقت!', `حميت ${gameScore} نجمة`, 'ph-shield-check'); document.getElementById('guardian-start-btn').classList.remove('hidden'); } }, 1000);
+            
+            const spawn = () => {
+                if(gameTime <= 0) return;
+                const star = document.createElement('div'); star.className = 'falling-item w-10 h-10 flex items-center justify-center text-4xl text-star z-10 drop-shadow-md'; star.innerHTML = '<i class="ph-fill ph-star"></i>';
+                let x = Math.random() * (area.clientWidth - 40); let y = -40; star.style.left = x + 'px'; star.style.top = y + 'px'; area.appendChild(star);
+                
+                safeRegisterLoop(() => {
+                    y += 3 + (gameScore * 0.1); star.style.top = y + 'px';
+                    const sRect = star.getBoundingClientRect(); const pRect = player.getBoundingClientRect();
+                    if(sRect.bottom >= pRect.top && sRect.left < pRect.right && sRect.right > pRect.left && sRect.top < pRect.bottom) { gameScore++; document.getElementById('guardian-score').innerText = gameScore; star.remove(); }
+                    else if(y > area.clientHeight) { star.remove(); }
+                });
+                guardianSpawner = safeRegisterTimeout(spawn, Math.max(500, 1500 - (gameScore * 40)));
+            }; spawn();
+        }
+
+        function initNumbersGame() { document.getElementById('numfall-start-btn').classList.remove('hidden'); document.getElementById('numfall-score').innerText = '0'; document.getElementById('numfall-time').innerText = '45'; document.getElementById('numfall-area').innerHTML = ''; document.getElementById('numfall-target').innerText = '?'; }
+        function startNumfallPlaying() {
+            document.getElementById('numfall-start-btn').classList.add('hidden'); gameScore = 0; gameTime = 45; document.getElementById('numfall-score').innerText = gameScore;
+            
+            const setTarget = () => { fallState.target = Math.floor(Math.random() * 9) + 1; document.getElementById('numfall-target').innerText = fallState.target; }; setTarget();
+            
+            safeRegisterInterval(() => { gameTime--; document.getElementById('numfall-time').innerText = gameTime; if(gameTime <= 0) { closeAllGames(); addPoints(Math.floor(gameScore/2)); showModal('انتهى الوقت!', `اصطدت ${gameScore} أرقام`, 'ph-math-operations'); document.getElementById('numfall-start-btn').classList.remove('hidden'); } }, 1000);
+            
+            const spawn = () => {
+                if(gameTime <= 0) return;
+                const area = document.getElementById('numfall-area');
+                const num = Math.random() > 0.4 ? fallState.target : Math.floor(Math.random() * 9) + 1;
+                const el = document.createElement('div');
+                el.className = 'falling-item w-16 h-16 bg-space-800 rounded-full flex items-center justify-center text-3xl font-black font-mono text-white border-2 border-space-600 cursor-pointer shadow-lg touch-none';
+                el.innerText = num;
+                let x = Math.random() * (area.clientWidth - 64); let y = -64;
+                el.style.left = x + 'px'; el.style.top = y + 'px';
+                
+                el.onpointerdown = () => {
+                    if(num === fallState.target) { gameScore++; document.getElementById('numfall-score').innerText = gameScore; el.remove(); setTarget(); }
+                    else { el.classList.add('bg-rose-600', 'border-rose-400'); setTimeout(() => el.classList.remove('bg-rose-600', 'border-rose-400'), 300); }
+                };
+                area.appendChild(el);
+                
+                safeRegisterLoop(() => { y += 2 + (gameScore * 0.1); el.style.top = y + 'px'; if(y > area.clientHeight) el.remove(); });
+            };
+            numbersSpawner = safeRegisterInterval(spawn, 1200);
+        }
+
+        function initBubblesGame() { document.getElementById('bubbles-score').innerText = '0'; }
+        function startBubblesGame() {
+            navigate('view-game-bubbles'); gameScore = 0; document.getElementById('bubbles-score').innerText = gameScore; const area = document.getElementById('bubbles-area'); area.innerHTML = '';
+            
+            const spawn = () => {
+                const s = Math.random() * 40 + 50; const b = document.createElement('div');
+                b.className = 'bubble'; b.style.width = s + 'px'; b.style.height = s + 'px';
+                let x = Math.random() * (area.clientWidth - s); let y = area.clientHeight + 100;
+                b.style.left = x + 'px'; b.style.top = y + 'px';
+                
+                b.onpointerdown = (e) => {
+                    e.preventDefault(); gameScore++; document.getElementById('bubbles-score').innerText = gameScore;
+                    if(navigator.vibrate) navigator.vibrate(20);
+                    b.style.transition = 'all 0.2s'; b.style.transform = 'scale(1.5)'; b.style.opacity = '0';
+                    setTimeout(() => b.remove(), 200);
+                    if(gameScore % 15 === 0) addPoints(2);
+                };
+                area.appendChild(b);
+                
+                safeRegisterLoop(() => { y -= (1 + Math.random()*2); b.style.top = y + 'px'; if(y < -100) b.remove(); });
+            };
+            bubblesSpawner = safeRegisterInterval(spawn, 800);
+        }
+
+        // ================= SHAPES HUB =================
+        function buildShapesHub() {
+            const games = [ { id: 'sh_match', name: 'مطابقة الأشكال', icon: 'ph-intersect-square', color: 'text-purple-400' }, { id: 'sh_find', name: 'البحث عن الشكل', icon: 'ph-magnifying-glass', color: 'text-blue-400' }, { id: 'sh_color', name: 'تلوين الأشكال', icon: 'ph-palette', color: 'text-rose-400' }, { id: 'sh_sort', name: 'ترتيب الأشكال', icon: 'ph-sort-ascending', color: 'text-teal-400' }, { id: 'sh_puzzle', name: 'أكمل الشكل', icon: 'ph-puzzle-piece', color: 'text-green-400' }, { id: 'sh_count', name: 'عد الأشكال', icon: 'ph-list-numbers', color: 'text-indigo-400' }, { id: 'sh_draw', name: 'الرسم الحر', icon: 'ph-paint-brush-broad', color: 'text-calm' } ];
+            const grid = document.getElementById('shapes-games-grid'); grid.innerHTML = '';
+            games.forEach(g => { const btn = document.createElement('button'); btn.className = 'btn-3d bg-space-800 border border-space-600 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-space-700 transition gap-2'; btn.innerHTML = `<div class="bg-space-900/50 p-3 rounded-full text-4xl ${g.color}"><i class="ph-fill ${g.icon}"></i></div><span class="text-sm font-bold text-white">${g.name}</span>`; btn.onclick = () => { gameScore = 0; eduGameType = g.id; navigate('view-shapes-play'); generateShapeRound(); }; grid.appendChild(btn); });
+        }
+
+        function generateShapeRound() {
+            if(gameScore >= 3 && eduGameType !== 'sh_draw') { addPoints(5); document.getElementById('shapes-play-content').innerHTML = `<div class="text-center mt-10"><i class="ph-fill ph-trophy text-8xl text-star mb-4 animate-float"></i><h2 class="text-4xl font-black text-white mb-6">أنت بطل رائع!</h2><button onclick="navigate('view-shapes-hub')" class="btn-3d bg-space-lightPurple text-white px-8 py-3 rounded-2xl font-bold text-xl">العودة للأشكال</button></div>`; return; }
+            const cont = document.getElementById('shapes-play-content'); cont.innerHTML = ''; let title = '', visual = '', interactive = '';
+            
+            if (eduGameType === 'sh_match') {
+                title = 'طابق الشكل مع ظله'; const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)]; shCurrentTarget = shape.id;
+                visual = `<div class="text-9xl mb-8 opacity-20 brightness-0 drop-shadow-md"><i class="ph-fill ${shape.icon}"></i></div>`;
+                let options = [shape, ...SHAPES_DATA.filter(s => s.id !== shape.id).sort(()=>Math.random()-0.5).slice(0,2)].sort(()=>Math.random()-0.5);
+                interactive = `<div class="grid grid-cols-3 gap-4 w-full max-w-sm">`; options.forEach(opt => { interactive += `<button onclick="checkShapeAnswer('${opt.id}')" class="btn-3d bg-space-800 p-4 rounded-3xl text-6xl flex justify-center items-center ${opt.color} hover:bg-space-700 aspect-square border-2 border-space-600"><i class="ph-fill ${opt.icon}"></i></button>`; }); interactive += `</div>`;
+            } else if (eduGameType === 'sh_find') {
+                const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)]; shCurrentTarget = shape.id; title = `أين ${shape.name}؟`;
+                visual = `<div class="text-3xl font-black text-white mb-8 border-b-2 border-space-600 pb-4 text-center w-full">${title}</div>`;
+                let options = [shape, ...SHAPES_DATA.filter(s => s.id !== shape.id).sort(()=>Math.random()-0.5).slice(0,3)].sort(()=>Math.random()-0.5);
+                interactive = `<div class="grid grid-cols-2 gap-4 w-full max-w-sm">`; options.forEach(opt => { interactive += `<button onclick="checkShapeAnswer('${opt.id}')" class="btn-3d bg-space-800 p-6 rounded-3xl text-7xl flex justify-center items-center ${opt.color} hover:bg-space-700 aspect-square border-2 border-space-600"><i class="ph-fill ${opt.icon}"></i></button>`; }); interactive += `</div>`;
+            } else if (eduGameType === 'sh_color') {
+                title = 'اضغط لتلوين الشكل'; const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)];
+                visual = `<div id="shape-to-color" class="text-[10rem] mb-8 text-white transition-colors duration-500 drop-shadow-lg"><i class="ph ${shape.icon}"></i></div>`;
+                const colors = ['#f43f5e', '#3b82f6', '#22c55e', '#fbbf24', '#a855f7']; interactive = `<div class="flex gap-3 w-full max-w-sm justify-center mb-6">`;
+                colors.forEach(c => { interactive += `<button onclick="document.getElementById('shape-to-color').innerHTML='<i class=\\'ph-fill ${shape.icon}\\'></i>'; document.getElementById('shape-to-color').style.color='${c}'; setTimeout(()=>checkShapeAnswer('win'), 1000);" class="btn-3d w-14 h-14 rounded-full border-4 border-white shadow-lg active:scale-90 transition" style="background-color: ${c}"></button>`; }); interactive += `</div>`;
+            } else if (eduGameType === 'sh_sort') {
+                title = 'رتب من الأصغر إلى الأكبر'; const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)]; window.shSortExpected = 0;
+                const sizes = [ {id: 0, cls: 'text-3xl p-4'}, {id: 1, cls: 'text-6xl p-6'}, {id: 2, cls: 'text-8xl p-8'} ]; const shuffled = [...sizes].sort(() => Math.random() - 0.5);
+                visual = `<div class="flex items-end justify-center gap-4 w-full h-48 border-b-4 border-space-700 pb-4 mb-8" id="sort-container">`;
+                shuffled.forEach(s => { visual += `<button id="sort-btn-${s.id}" onclick="handleSortClick(${s.id})" class="btn-3d bg-space-800 rounded-3xl ${shape.color} ${s.cls} flex justify-center items-center transition border-2 border-space-600"><i class="ph-fill ${shape.icon}"></i></button>`; }); visual += `</div>`;
+            } else if (eduGameType === 'sh_puzzle') {
+                title = 'أكمل الشكل'; const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)]; shCurrentTarget = shape.id;
+                visual = `<div class="flex items-center justify-center bg-space-800 p-8 rounded-3xl mb-8 border-2 border-space-600 w-full max-w-[280px] aspect-square relative overflow-hidden"><div class="absolute left-0 w-1/2 h-full overflow-hidden flex items-center justify-start text-[14rem] ${shape.color}"><i class="ph-fill ${shape.icon} absolute left-1/2 -translate-x-1/2"></i></div><div class="absolute right-0 w-1/2 h-full border-4 border-dashed border-space-600 bg-space-900/30 flex items-center justify-center text-4xl text-space-600 font-bold">؟</div></div>`;
+                let options = [shape, ...SHAPES_DATA.filter(s => s.id !== shape.id).sort(()=>Math.random()-0.5).slice(0,2)].sort(()=>Math.random()-0.5);
+                interactive = `<div class="grid grid-cols-3 gap-3 w-full max-w-sm">`; options.forEach(opt => { interactive += `<button onclick="checkShapeAnswer('${opt.id}')" class="btn-3d bg-space-800 rounded-2xl h-24 overflow-hidden relative border-2 border-space-600 hover:border-star flex justify-center"><div class="absolute right-0 w-full h-full overflow-hidden flex items-center justify-center text-7xl ${opt.color}"><i class="ph-fill ${opt.icon}"></i></div></button>`; }); interactive += `</div>`;
+            } else if (eduGameType === 'sh_count') {
+                const tNum = Math.floor(Math.random() * 4) + 2; shCurrentTarget = tNum; const shape = SHAPES_DATA[Math.floor(Math.random() * SHAPES_DATA.length)]; title = `كم عدد الأشكال؟`;
+                let sHTML = ''; for(let i=0; i<tNum; i++) sHTML += `<i class="ph-fill ${shape.icon} ${shape.color}"></i>`;
+                visual = `<div class="bg-space-800 border-2 border-space-600 rounded-3xl p-6 mb-8 text-5xl text-center min-h-[120px] flex items-center justify-center flex-wrap gap-3">${sHTML}</div>`;
+                let options = [tNum]; while(options.length < 3) { let r = Math.floor(Math.random() * 6) + 1; if(!options.includes(r)) options.push(r); } options.sort(() => Math.random() - 0.5);
+                interactive = `<div class="grid grid-cols-3 gap-4 w-full max-w-sm">`; options.forEach(opt => { interactive += `<button onclick="checkShapeAnswer('${opt}')" class="btn-3d bg-space-800 p-4 rounded-2xl text-5xl font-mono font-black text-white hover:border-star border-2 border-space-600">${opt}</button>`; }); interactive += `</div>`;
+            } else if (eduGameType === 'sh_draw') {
+                title = 'لوحة الرسم الحر 🎨';
+                visual = `<div class="w-full max-w-[320px] aspect-[4/5] bg-white rounded-3xl border-4 border-space-600 mb-4 relative overflow-hidden touch-none"><canvas id="sh-free-canvas" class="absolute inset-0 w-full h-full"></canvas></div>`;
+                const colors = ['#0f172a', '#f43f5e', '#3b82f6', '#22c55e', '#fbbf24']; interactive = `<div class="flex gap-2 w-full justify-center mb-4 bg-space-800 p-2 rounded-2xl">`;
+                colors.forEach((c, i) => { interactive += `<button onclick="shSetColor('${c}', this)" class="color-picker-btn w-10 h-10 rounded-full border-4 ${i===0?'border-star':'border-white'} shadow-sm transition transform hover:scale-110" style="background-color: ${c}"></button>`; });
+                interactive += `<button onclick="shSetColor('eraser', this)" class="color-picker-btn w-10 h-10 rounded-full border-4 border-white bg-white text-space-900 flex items-center justify-center text-xl shadow-sm transition transform hover:scale-110"><i class="ph-fill ph-eraser"></i></button></div>`;
+                interactive += `<div class="flex gap-2 w-full justify-center"><button onclick="clearCanvasFree()" class="btn-3d bg-rose-500 text-white px-6 py-2 rounded-xl font-bold">مسح <i class="ph-bold ph-trash"></i></button><button onclick="saveFreeDraw()" class="btn-3d bg-blue-500 text-white px-6 py-2 rounded-xl font-bold">حفظ <i class="ph-bold ph-download-simple"></i></button></div>`;
+                
+                setTimeout(() => {
+                    const c = document.getElementById('sh-free-canvas'); const r = c.parentElement.getBoundingClientRect(); c.width = r.width; c.height = r.height; window.shFreeCtx = c.getContext('2d'); window.shFreeCtx.lineWidth = 8; window.shFreeCtx.lineCap = 'round'; window.shFreeCtx.lineJoin = 'round'; window.shFreeCtx.strokeStyle = '#0f172a';
+                    const ds = (e) => { shIsDrawing=true; window.shFreeCtx.beginPath(); const p=gp(e); window.shFreeCtx.moveTo(p.x, p.y); e.preventDefault();}; const dm = (e) => { if(!shIsDrawing) return; const p=gp(e); window.shFreeCtx.lineTo(p.x, p.y); window.shFreeCtx.stroke(); e.preventDefault(); }; const de = () => { shIsDrawing=false; window.shFreeCtx.closePath(); }; const gp = (e) => { const r=c.getBoundingClientRect(); const x=e.touches?e.touches[0].clientX:e.clientX; const y=e.touches?e.touches[0].clientY:e.clientY; return {x:x-r.left, y:y-r.top}; };
+                    c.addEventListener('mousedown', ds); c.addEventListener('mousemove', dm); c.addEventListener('mouseup', de); c.addEventListener('mouseout', de); c.addEventListener('touchstart', ds, {passive:false}); c.addEventListener('touchmove', dm, {passive:false}); c.addEventListener('touchend', de);
+                }, 100);
+            }
+
+            if(title) { cont.innerHTML += `<h3 class="text-2xl font-black text-white mb-6 text-center drop-shadow-md">${title}</h3>`; playTTS(title); }
+            cont.innerHTML += visual + interactive;
+        }
+
+        function checkShapeAnswer(val) {
+            if(val == shCurrentTarget || val === 'win') { playTTS(['أحسنت يا بطل!', 'ممتاز!', 'رائع!'][Math.floor(Math.random()*3)]); fireConfetti(); setTimeout(() => { gameScore++; generateShapeRound(); }, 1500); } 
+            else { showCalmMessage('حاول مرة أخرى'); const btn = event.currentTarget; if(btn) { btn.classList.add('anim-shake', 'opacity-50'); setTimeout(()=>btn.classList.remove('anim-shake'), 400); } }
+        }
+
+        function handleSortClick(id) {
+            if(id === window.shSortExpected) { const btn = document.getElementById(`sort-btn-${id}`); btn.classList.replace('bg-space-800', 'bg-success'); btn.classList.add('text-white', 'pointer-events-none'); window.shSortExpected++; if(window.shSortExpected === 3) { playTTS('ممتاز!'); fireConfetti(); setTimeout(() => { gameScore++; generateShapeRound(); }, 1500); } } 
+            else { showCalmMessage('اختر الأصغر أولاً'); const btn = document.getElementById(`sort-btn-${id}`); btn.classList.add('anim-shake'); setTimeout(()=>btn.classList.remove('anim-shake'), 400); }
+        }
+
+        function shSetColor(hex, btn) { document.querySelectorAll('.color-picker-btn').forEach(b => b.classList.replace('border-star', 'border-white')); btn.classList.replace('border-white', 'border-star'); if(hex === 'eraser') { window.shFreeCtx.strokeStyle = '#ffffff'; window.shFreeCtx.lineWidth = 30; } else { window.shFreeCtx.strokeStyle = hex; window.shFreeCtx.lineWidth = 8; } }
+        function clearCanvasFree() { const c = document.getElementById('sh-free-canvas'); window.shFreeCtx.clearRect(0,0, c.width, c.height); }
+        function saveFreeDraw() { const c = document.getElementById('sh-free-canvas'); const t = document.createElement('canvas'); t.width = c.width; t.height = c.height; const ctx = t.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,t.width, t.height); ctx.drawImage(c, 0, 0); const l = document.createElement('a'); l.download = 'rsmati.png'; l.href = t.toDataURL('image/png'); l.click(); showModal('تم الحفظ!', 'حفظت رسمتك!', 'ph-paint-brush'); addPoints(2); }
+
+        window.onload = finishInit;
+
+    </script>
+</body>
+</html>
